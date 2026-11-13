@@ -19,6 +19,8 @@ harness, models, permissions, tools, or behavior.
 - opencode 1.x (tested with 1.19.3).
 - opencode reads TUI settings from `~/.config/opencode/tui.json` and custom themes
   from `~/.config/opencode/themes/*.json` in this version.
+- Linux/macOS: `bash` (macOS default is fine) and one of `python3`, `python`, or `jq`.
+- Windows: PowerShell 5.1+ (built in) or PowerShell 7.
 
 > Newer opencode releases may use `cli.json` and a `{ "name", "mode" }` theme
 > object. If your version differs, copy `themes/stealth.json` into the theme
@@ -26,25 +28,54 @@ harness, models, permissions, tools, or behavior.
 
 ## Install
 
+### Linux / macOS
+
 ```bash
 git clone <your-fork-url> opencode-stealth-theme
 cd opencode-stealth-theme
+chmod +x install.sh
+./install.sh
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone <your-fork-url> opencode-stealth-theme
+cd opencode-stealth-theme
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+# or, with PowerShell 7:
+# pwsh -File .\install.ps1
+```
+
+### Windows (Git Bash / WSL)
+
+```bash
 ./install.sh
 ```
 
 The installer copies the theme and sets `"theme": "stealth"` in `tui.json`,
-preserving any existing settings.
+preserving any existing settings. Then restart opencode.
 
-Then restart opencode.
+### Custom config location
+
+All installers honor `OPENCODE_CONFIG_DIR`:
+
+```bash
+OPENCODE_CONFIG_DIR="$HOME/.config/opencode" ./install.sh
+```
+
+```powershell
+$env:OPENCODE_CONFIG_DIR = "$HOME\.config\opencode"
+.\install.ps1
+```
+
+The default is `${XDG_CONFIG_HOME:-$HOME/.config}/opencode`
+(`%USERPROFILE%\.config\opencode` on Windows).
 
 ### Manual install
 
-```bash
-mkdir -p ~/.config/opencode/themes
-cp themes/stealth.json ~/.config/opencode/themes/
-```
-
-Edit or create `~/.config/opencode/tui.json`:
+Create `<config>/themes/stealth.json` from `themes/stealth.json`, then create or
+edit `<config>/tui.json`:
 
 ```json
 {
@@ -53,16 +84,39 @@ Edit or create `~/.config/opencode/tui.json`:
 }
 ```
 
+Paths by platform:
+
+| Platform | Config directory |
+| --- | --- |
+| Linux / macOS | `~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`) |
+| Windows | `%USERPROFILE%\.config\opencode` |
+
 ## Switching themes
 
 - In the TUI: `Ctrl+P` → Theme → choose `stealth` or `opencode`.
-- Or edit `~/.config/opencode/tui.json`:
+- Or edit `tui.json`:
   - `"theme": "stealth"` for the plain look
   - `"theme": "opencode"` for the default theme
 
+## Uninstall
+
+Linux / macOS:
+
+```bash
+./uninstall.sh
+```
+
+Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+```
+
+Or manually delete `themes/stealth.json` and set `"theme": "opencode"`.
+
 ## Tuning
 
-Edit `~/.config/opencode/themes/stealth.json`. Useful knobs:
+Edit the installed `themes/stealth.json`. Useful knobs:
 
 | Token | Purpose |
 | --- | --- |
@@ -74,15 +128,6 @@ Edit `~/.config/opencode/themes/stealth.json`. Useful knobs:
 
 Set `backgroundElement` to `"transparent"` to make the input box match your
 terminal background exactly.
-
-## Uninstall
-
-```bash
-rm -f ~/.config/opencode/themes/stealth.json
-```
-
-Then set `"theme": "opencode"` in `~/.config/opencode/tui.json` (or pick another
-theme in `Ctrl+P` → Theme).
 
 ## License
 
