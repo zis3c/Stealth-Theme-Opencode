@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate theme files
+        run: python tests/test_theme.py
+      - name: Build release assets
+        run: |
+          mkdir -p dist
+          cp themes/*.json dist/
+          zip -j dist/stealth-theme.zip \
+            themes/stealth.json themes/stealth-amber.json themes/stealth-green.json \
+            install.sh install.ps1 install.cmd uninstall.sh uninstall.ps1 uninstall.cmd \
+            README.md LICENSE
+          ls -l dist
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --generate-notes

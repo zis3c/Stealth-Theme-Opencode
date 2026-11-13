@@ -1,38 +1,61 @@
-# opencode-stealth-theme
+# Stealth Theme for OpenCode
 
-A low-key, monochrome [opencode](https://opencode.ai) TUI theme that blends into a
-plain terminal. Transparent backgrounds, gray-only palette, no bright accents —
-useful when you do not want the UI to stand out.
+[![CI](https://github.com/zis3c/Stealth-Theme-Opencode/actions/workflows/ci.yml/badge.svg)](https://github.com/zis3c/Stealth-Theme-Opencode/actions/workflows/ci.yml)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](docs/OS-COMPATIBILITY.md)
+[![opencode](https://img.shields.io/badge/opencode-v1%20%7C%20v2-blue)](docs/THEMING.md)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-The theme is intentionally presentation-only: it does not change opencode's
-harness, models, permissions, tools, or behavior.
+Stealth Theme is a low-key, monochrome [OpenCode](https://opencode.ai) TUI theme that blends
+into a plain terminal. It uses transparent surfaces, a gray-only palette and no bright
+accents, so the interface does not stand out when you are working in a shared or recorded
+session.
 
-## What you get
+The theme is presentation-only. It does not change OpenCode's harness, models,
+permissions, tools or behavior.
 
-- `themes/stealth.json` — the theme (opencode 1.x `defs` + `theme` format).
-- Transparent app/panel/input backgrounds so the terminal background shows through.
-- Light and dark variants so the theme follows your terminal mode.
-- Readable body text, muted secondary text.
+## Why this exists
 
-## Requirements
+Most themes are designed to be expressive. This one is designed to be quiet:
 
-- opencode 1.x (tested with 1.19.3).
-- opencode reads TUI settings from `~/.config/opencode/tui.json` and custom themes
-  from `~/.config/opencode/themes/*.json` in this version.
-- Linux/macOS: `bash` (macOS default is fine) and one of `python3`, `python`, or `jq`.
-- Windows: PowerShell 5.1+ (built in) or PowerShell 7.
+- Transparent app, panel, input and dialog backgrounds, so your terminal background shows through.
+- Gray-only palette with readable primary text and subdued secondary text.
+- Light and dark variants that follow the terminal color mode.
+- No decorative color, no branding-heavy highlight.
 
-> Newer opencode releases may use `cli.json` and a `{ "name", "mode" }` theme
-> object. If your version differs, copy `themes/stealth.json` into the theme
-> directory it documents and select `stealth`.
+## Features
 
-## Install
+- Drop-in theme file for OpenCode v1 (`tui.json`) and v2 (`cli.json`).
+- Native installers for Linux, macOS and Windows (Bash + PowerShell + CMD).
+- Preserves unrelated `tui.json` / `cli.json` settings such as keybinds.
+- Optional palettes: `gray` (default), `amber` and `green`.
+- Reversible: uninstallers restore the default OpenCode theme.
+- CI on Ubuntu, macOS and Windows; theme structure and installer behavior are tested.
+
+## Screenshot
+
+![Stealth theme with transparent backgrounds](docs/assets/stealth-screenshot.png)
+
+The TUI sits flush on the terminal; the browser behind it is only visible because the
+theme backgrounds are transparent.
+
+## Supported platforms
+
+| Platform | Installer | Status |
+|---|---|---|
+| Linux (amd64/arm64) | `install.sh` | Supported |
+| macOS | `install.sh` | Supported |
+| Windows (PowerShell) | `install.ps1` / `install.cmd` | Supported |
+| Windows (Git Bash / WSL) | `install.sh` | Supported |
+
+See [`docs/OS-COMPATIBILITY.md`](docs/OS-COMPATIBILITY.md) for details and limitations.
+
+## Installation
 
 ### Linux / macOS
 
 ```bash
-git clone <your-fork-url> opencode-stealth-theme
-cd opencode-stealth-theme
+git clone https://github.com/zis3c/Stealth-Theme-Opencode.git
+cd Stealth-Theme-Opencode
 chmod +x install.sh
 ./install.sh
 ```
@@ -40,11 +63,10 @@ chmod +x install.sh
 ### Windows (PowerShell)
 
 ```powershell
-git clone <your-fork-url> opencode-stealth-theme
-cd opencode-stealth-theme
+git clone https://github.com/zis3c/Stealth-Theme-Opencode.git
+cd Stealth-Theme-Opencode
 powershell -ExecutionPolicy Bypass -File .\install.ps1
-# or, with PowerShell 7:
-# pwsh -File .\install.ps1
+# or double-click install.cmd
 ```
 
 ### Windows (Git Bash / WSL)
@@ -53,81 +75,63 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ./install.sh
 ```
 
-The installer copies the theme and sets `"theme": "stealth"` in `tui.json`,
-preserving any existing settings. Then restart opencode.
+Then restart OpenCode.
 
-### Custom config location
-
-All installers honor `OPENCODE_CONFIG_DIR`:
+### Options
 
 ```bash
-OPENCODE_CONFIG_DIR="$HOME/.config/opencode" ./install.sh
+./install.sh --variant amber      # gray (default), amber, green
+./install.sh --v2                 # write cli.json for OpenCode v2
 ```
 
 ```powershell
-$env:OPENCODE_CONFIG_DIR = "$HOME\.config\opencode"
-.\install.ps1
+.\install.ps1 -Variant amber
+.\install.ps1 -V2
 ```
 
-The default is `${XDG_CONFIG_HOME:-$HOME/.config}/opencode`
-(`%USERPROFILE%\.config\opencode` on Windows).
+The installer copies the theme to `<config>/themes/` and sets it as the active theme.
+Custom config locations are supported with `OPENCODE_CONFIG_DIR`.
 
-### Manual install
+See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for manual installation and
+[`docs/WINDOWS.md`](docs/WINDOWS.md) for the native Windows guide.
 
-Create `<config>/themes/stealth.json` from `themes/stealth.json`, then create or
-edit `<config>/tui.json`:
+## Quick start
 
-```json
-{
-  "$schema": "https://opencode.ai/tui.json",
-  "theme": "stealth"
-}
+```bash
+./install.sh
+# restart opencode
+# switch at any time: Ctrl+P -> Theme
 ```
 
-Paths by platform:
-
-| Platform | Config directory |
-| --- | --- |
-| Linux / macOS | `~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`) |
-| Windows | `%USERPROFILE%\.config\opencode` |
-
-## Switching themes
-
-- In the TUI: `Ctrl+P` → Theme → choose `stealth` or `opencode`.
-- Or edit `tui.json`:
-  - `"theme": "stealth"` for the plain look
-  - `"theme": "opencode"` for the default theme
-
-## Uninstall
-
-Linux / macOS:
+To return to the default look:
 
 ```bash
 ./uninstall.sh
+# or: Ctrl+P -> Theme -> opencode
 ```
 
-Windows:
+## Repository scope
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+This repository contains the theme files, cross-platform installers, tests and
+documentation. It does not vendor OpenCode and does not modify the OpenCode binary.
+
+## Repository layout
+
+```text
+Stealth-Theme-Opencode/
+├── themes/                       stealth.json, stealth-amber.json, stealth-green.json
+├── install.sh / uninstall.sh     Linux, macOS, Git Bash, WSL
+├── install.ps1 / uninstall.ps1   Windows PowerShell
+├── install.cmd / uninstall.cmd   Windows double-click wrappers
+├── tests/                        theme validation + installer tests
+├── docs/                         installation, compatibility, theming, Windows, index
+└── .github/workflows/            ci.yml, release.yml
 ```
 
-Or manually delete `themes/stealth.json` and set `"theme": "opencode"`.
+## Documentation
 
-## Tuning
-
-Edit the installed `themes/stealth.json`. Useful knobs:
-
-| Token | Purpose |
-| --- | --- |
-| `darkMuted` / `lightMuted` | placeholder and secondary text |
-| `darkFaint` / `lightFaint` | comments, faint text |
-| `darkElement` / `lightElement` | input/selection surface (`transparent` = terminal bg) |
-| `backgroundMenu` | menus and dialogs (set to `transparent` to match the terminal) |
-| `primary` / `accent` | interactive highlights and headings |
-
-Set `backgroundElement` to `"transparent"` to make the input box match your
-terminal background exactly.
+Start at [`docs/INDEX.md`](docs/INDEX.md). See [`CONTRIBUTING.md`](CONTRIBUTING.md) for
+development checks and [`LICENSE`](LICENSE) for licensing.
 
 ## License
 

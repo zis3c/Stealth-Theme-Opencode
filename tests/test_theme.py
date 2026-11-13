@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the stealth theme file structure and color references."""
+"""Validate all bundled theme files and their color references."""
 
 import json
 import pathlib
@@ -7,7 +7,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-THEME = ROOT / "themes" / "stealth.json"
+THEMES = ROOT / "themes"
 
 REQUIRED = [
     "primary", "secondary", "accent", "error", "warning", "success", "info",
@@ -26,12 +26,7 @@ REQUIRED = [
 ]
 
 HEX = re.compile(r"^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
-
-errors = []
-
-
-def fail(msg):
-    errors.append(msg)
+TRANSPARENT_SURFACES = ("background", "backgroundPanel", "backgroundElement", "backgroundMenu")
 
 
 def resolve(value, defs, theme, seen=None):
@@ -52,26 +47,24 @@ def resolve(value, defs, theme, seen=None):
     return resolve(target, defs, theme, seen + [value])
 
 
-def main():
-    if not THEME.exists():
-        print(f"missing theme file: {THEME}", file=sys.stderr)
-        return 1
+def validate(path):
+    errors = []
+
+    def fail(msg):
+        errors.append(f"{path.name}: {msg}")
 
     try:
-        data = json.loads(THEME.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
     except (ValueError, OSError) as exc:
-        print(f"invalid JSON: {exc}", file=sys.stderr)
-        return 1
+        return [f"{path.name}: invalid JSON: {exc}"]
 
     if not isinstance(data, dict) or "theme" not in data:
-        print("theme file must be an object with a 'theme' key", file=sys.stderr)
-        return 1
+        return [f"{path.name}: must be an object with a 'theme' key"]
 
     defs = data.get("defs", {})
     theme = data["theme"]
     if not isinstance(defs, dict) or not isinstance(theme, dict):
-        print("'defs' and 'theme' must be objects", file=sys.stderr)
-        return 1
+        return [f"{path.name}: 'defs' and 'theme' must be objects"]
 
     for key in REQUIRED:
         if key not in theme:
@@ -93,24 +86,41 @@ def main():
             if not (resolved in ("transparent", "none") or HEX.match(str(resolved))):
                 fail(f"{key}.{mode} is not a valid color: {resolved!r}")
 
-    # Regression checks: the TUI surfaces must blend with the terminal.
-    for key in ("background", "backgroundPanel", "backgroundElement", "backgroundMenu"):
+    for key in TRANSPARENT_SURFACES:
         if key in theme:
             for mode in ("dark", "light"):
                 try:
                     resolved = resolve(theme[key][mode], defs, theme)
-                except ValueError:
+                except (ValueError, KeyError, TypeError):
                     continue
                 if resolved != "transparent":
                     fail(f"{key}.{mode} should be transparent (got {resolved!r})")
 
-    if errors:
+    return errors
+
+
+def main():
+    files = sorted(THEMES.glob("*.json"))
+    if not files:
+        print(f"no theme files found in {THEMES}", file=sys.stderr)
+        return 1
+
+    all_errors = []
+    for path in files:
+        errors = validate(path)
+        if errors:
+            all_errors.extend(errors)
+        else:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            print(f"ok: {path.name} ({len(data['theme'])} tokens)")
+
+    if all_errors:
         print("theme validation failed:", file=sys.stderr)
-        for error in errors:
+        for error in all_errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
-    print(f"theme validation passed ({len(theme)} tokens)")
+    print(f"theme validation passed ({len(files)} files)")
     return 0
 
 
