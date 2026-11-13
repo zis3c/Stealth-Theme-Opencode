@@ -123,7 +123,7 @@ Edit the installed `themes/stealth.json`. Useful knobs:
 | `darkMuted` / `lightMuted` | placeholder and secondary text |
 | `darkFaint` / `lightFaint` | comments, faint text |
 | `darkElement` / `lightElement` | input/selection surface (`transparent` = terminal bg) |
-| `backgroundMenu` | menus and dialogs (kept slightly opaque for readability) |
+| `backgroundMenu` | menus and dialogs (set to `transparent` to match the terminal) |
 | `primary` / `accent` | interactive highlights and headings |
 
 Set `backgroundElement` to `"transparent"` to make the input box match your
