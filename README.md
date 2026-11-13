@@ -135,4 +135,4 @@ development checks and [`LICENSE`](LICENSE) for licensing.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

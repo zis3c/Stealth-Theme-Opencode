@@ -23,8 +23,8 @@ If script execution is blocked, use `-ExecutionPolicy Bypass` as shown above or 
 
 ## Double-click
 
-- `install.cmd` — install the default gray theme.
-- `uninstall.cmd` — restore the default OpenCode theme.
+- `install.cmd` - install the default gray theme.
+- `uninstall.cmd` - restore the default OpenCode theme.
 
 ## Paths
 
